@@ -2,11 +2,602 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Budgetio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Budgetio · step by step</title>
+    <!-- Poppins font & icons (minimal) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f2f6fc;  /* same soft background everywhere */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        /* main card – no borders, just subtle shadow & same bg */
+        .budgetio-card {
+            width: 100%;
+            max-width: 400px;
+            background: #f2f6fc;        /* identical to body background */
+            border-radius: 42px;
+            box-shadow: 0 20px 40px -12px rgba(18, 45, 70, 0.25);
+            padding: 28px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            backdrop-filter: blur(2px);  /* barely there, matches bg */
+        }
+
+        /* headings */
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #142c44;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        h1 i {
+            color: #2b6a96;
+            font-size: 2.2rem;
+        }
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #1e3f5e;
+            margin-bottom: 8px;
+        }
+
+        /* choice buttons (NEW / PAST) – no borders, bg slightly deeper */
+        .choice-row {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin: 8px 0 12px;
+        }
+        .choice-btn {
+            background: #dde9f7;   /* subtle contrast, no border */
+            padding: 18px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: #113753;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 8px 16px -10px #305d83;
+            transition: 0.15s;
+            cursor: pointer;
+            flex: 1;
+            justify-content: center;
+            border: none;
+        }
+        .choice-btn i { font-size: 1.6rem; color: #1f5170; }
+        .choice-btn:active { transform: scale(0.98); background: #d0e0f2; }
+
+        /* progress / question area (no borders) */
+        .question-panel {
+            background: #e2edfa;   /* very soft, blends with bg */
+            border-radius: 48px;
+            padding: 28px 22px;
+            box-shadow: inset 0 2px 6px #c7daf0, 0 6px 12px -8px #819ebd;
+        }
+
+        .field-label {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #113753;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .field-label i { font-size: 1.8rem; color: #2b6a96; }
+
+        .skip-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin: 16px 0 8px;
+        }
+        .inp-skip {
+            flex: 1;
+            background: #ffffffd9;
+            border: none;
+            border-radius: 60px;
+            padding: 16px 22px;
+            font-size: 1.1rem;
+            color: #142c44;
+            box-shadow: 0 4px 10px #b9d2ec;
+        }
+        .inp-skip:focus { outline: 2px solid #578fbb; background: white; }
+        .inp-skip::placeholder { color: #99b6d6; font-weight: 300; }
+
+        .action-btn {
+            background: #c6dcf5;
+            border: none;
+            border-radius: 60px;
+            padding: 16px 26px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: #0f314b;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 8px #a5c2e0;
+            cursor: pointer;
+        }
+        .action-btn i { font-size: 1.3rem; }
+
+        /* past analysis list – also borderless */
+        .past-list {
+            background: #e2edfa;
+            border-radius: 48px;
+            padding: 20px 18px;
+            max-height: 360px;
+            overflow-y: auto;
+            box-shadow: inset 0 1px 5px #c1d5ef;
+        }
+        .history-item {
+            background: #f2f8ff;  /* matches body, but slightly lifted */
+            border-radius: 100px;
+            padding: 16px 22px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 3px 10px #b8cee9;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .history-item .date {
+            color: #284f73;
+            font-weight: 400;
+            display: flex;
+            gap: 6px;
+        }
+        .history-item .summary { font-weight: 600; color: #0b2b44; }
+        .delete-past {
+            background: none;
+            border: none;
+            color: #7f9ec2;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .clear-all-past {
+            background: #d1e2f5;
+            border-radius: 40px;
+            padding: 12px 24px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 14px;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* metrics display (result screen) */
+        .result-panel {
+            background: #e2edfa;
+            border-radius: 48px;
+            padding: 22px;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 22px 0;
+        }
+        .metric-cell {
+            background: #f2f8fc;
+            border-radius: 36px;
+            padding: 16px 8px;
+            text-align: center;
+            box-shadow: 0 3px 10px #b4ceea;
+        }
+        .metric-cell i { font-size: 1.8rem; color: #1d5880; }
+        .metric-cell .value { font-size: 1.8rem; font-weight: 500; color: #0b2b44; }
+        .ai-suggest {
+            background: #d9e9fc;
+            border-radius: 40px;
+            padding: 20px;
+            margin: 16px 0 8px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .back-home {
+            background: #c4daf5;
+            border-radius: 60px;
+            padding: 16px;
+            text-align: center;
+            font-weight: 500;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        /* no borders anywhere – all backgrounds similar */
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-    <h1>Budgetio is Ready 🚀</h1>
-    <p>Your full application code should be placed here.</p>
-    <p>Replace this placeholder with your complete HTML code if needed.</p>
+<div class="budgetio-card" id="app">
+    <!-- persistent header -->
+    <h1><i class="fas fa-calculator"></i> budgetio</h1>
+
+    <!-- MODE 1: HOME (NEW / PAST) -->
+    <div id="homeView">
+        <div class="choice-row">
+            <div class="choice-btn" id="newAnalysisBtn"><i class="fas fa-sparkles"></i> NEW</div>
+            <div class="choice-btn" id="pastAnalysisBtn"><i class="fas fa-timeline"></i> PAST</div>
+        </div>
+        <!-- subtle subline -->
+        <div style="text-align:center; color:#42658b; margin-top:8px;">← step by step · skip any →</div>
+    </div>
+
+    <!-- MODE 2: QUESTION FLOW (one by one) -->
+    <div id="questionView" class="hidden">
+        <div class="question-panel">
+            <div class="field-label" id="questionLabel"><i class="fas fa-wallet"></i> <span id="questionText">Enter your monthly income</span></div>
+            <div class="skip-row">
+                <input type="number" id="stepInput" class="inp-skip" placeholder="type amount or skip" step="any">
+                <button class="action-btn" id="stepNextBtn"><i class="fas fa-arrow-right"></i> next</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+                <button class="action-btn" id="stepSkipBtn" style="background:#d4e3f7;"><i class="fas fa-forward"></i> skip</button>
+                <button class="action-btn" id="stepFinishEarly" style="background:#c0d9f2;"><i class="fas fa-chart-simple"></i> finish</button>
+            </div>
+            <div style="margin-top: 16px; color:#38658f; font-size:0.95rem;" id="progressHint">1/6 · income</div>
+        </div>
+    </div>
+
+    <!-- MODE 3: RESULT (analysis + metrics) -->
+    <div id="resultView" class="hidden">
+        <div class="result-panel">
+            <h2 style="margin-bottom:8px;">📊 your snapshot</h2>
+            <div class="metric-grid" id="resultMetrics">
+                <!-- dynamic injected via js -->
+            </div>
+            <div class="ai-suggest" id="resultAI">✨ AI suggestion will appear here</div>
+            <div class="back-home" id="backHomeFromResult"><i class="fas fa-home"></i> home</div>
+            <div style="display:flex; gap:10px; margin-top:12px;">
+                <button class="action-btn" id="saveFromResult" style="flex:1;"><i class="fas fa-save"></i> save</button>
+                <button class="action-btn" id="newFromResult" style="flex:1;"><i class="fas fa-plus-circle"></i> new</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODE 4: PAST ANALYSIS LIST (full history) -->
+    <div id="pastView" class="hidden">
+        <div class="past-list" id="pastListContainer">
+            <!-- dynamic history items -->
+        </div>
+        <div style="display:flex; gap:12px; margin-top:18px;">
+            <button class="clear-all-past" id="clearAllPastBtn"><i class="fas fa-trash-alt"></i> clear all</button>
+            <button class="clear-all-past" id="backFromPast"><i class="fas fa-arrow-left"></i> back</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- STATE -----
+        let history = JSON.parse(localStorage.getItem('budgetio_history')) || [];
+
+        // Fields in order (label, icon, key)
+        const steps = [
+            { label: 'Monthly income?', icon: 'fa-wallet', key: 'income' },
+            { label: 'Investment amount?', icon: 'fa-chart-line', key: 'investment' },
+            { label: 'Monthly bills?', icon: 'fa-file-invoice', key: 'bills' },
+            { label: 'Estimated tax?', icon: 'fa-percent', key: 'tax' },
+            { label: 'Other expenditure?', icon: 'fa-receipt', key: 'other' },
+            { label: 'Extra earnings?', icon: 'fa-hand-holding-usd', key: 'earnings' }
+        ];
+
+        // current data (partial or final)
+        let currentData = {
+            income: null,
+            investment: null,
+            bills: null,
+            tax: null,
+            other: null,
+            earnings: null
+        };
+
+        let currentStepIndex = 0;  // 0-based
+
+        // views
+        const homeView = document.getElementById('homeView');
+        const questionView = document.getElementById('questionView');
+        const resultView = document.getElementById('resultView');
+        const pastView = document.getElementById('pastView');
+
+        // question elements
+        const questionText = document.getElementById('questionText');
+        const questionLabel = document.getElementById('questionLabel').querySelector('i'); // we will set icon
+        const stepInput = document.getElementById('stepInput');
+        const stepNextBtn = document.getElementById('stepNextBtn');
+        const stepSkipBtn = document.getElementById('stepSkipBtn');
+        const stepFinishEarly = document.getElementById('stepFinishEarly');
+        const progressHint = document.getElementById('progressHint');
+
+        // result elements
+        const resultMetrics = document.getElementById('resultMetrics');
+        const resultAI = document.getElementById('resultAI');
+        const saveFromResult = document.getElementById('saveFromResult');
+        const newFromResult = document.getElementById('newFromResult');
+        const backHomeFromResult = document.getElementById('backHomeFromResult');
+
+        // past view
+        const pastListContainer = document.getElementById('pastListContainer');
+        const clearAllPastBtn = document.getElementById('clearAllPastBtn');
+        const backFromPast = document.getElementById('backFromPast');
+
+        // home buttons
+        document.getElementById('newAnalysisBtn').addEventListener('click', startNewAnalysis);
+        document.getElementById('pastAnalysisBtn').addEventListener('click', showPastView);
+
+        // ---------- helper: hide all views ----------
+        function hideAll() {
+            homeView.classList.add('hidden');
+            questionView.classList.add('hidden');
+            resultView.classList.add('hidden');
+            pastView.classList.add('hidden');
+        }
+
+        // ---------- start new flow ----------
+        function startNewAnalysis() {
+            // reset data
+            currentData = { income: null, investment: null, bills: null, tax: null, other: null, earnings: null };
+            currentStepIndex = 0;
+            hideAll();
+            questionView.classList.remove('hidden');
+            updateQuestionStep();
+        }
+
+        function updateQuestionStep() {
+            if (currentStepIndex >= steps.length) {
+                // finished all steps → show result
+                computeAndShowResult();
+                return;
+            }
+            const step = steps[currentStepIndex];
+            questionText.innerText = step.label;
+            // set icon
+            const iconElem = document.querySelector('#questionLabel i');
+            if (iconElem) iconElem.className = `fas ${step.icon}`;
+            stepInput.value = '';  // clear
+            stepInput.placeholder = 'enter number or skip';
+            progressHint.innerText = `${currentStepIndex+1}/${steps.length} · ${step.label.split(' ')[0]}`;
+        }
+
+        // handle next (save current input if any)
+        function handleNext() {
+            if (currentStepIndex >= steps.length) return;
+            const key = steps[currentStepIndex].key;
+            const val = stepInput.value.trim();
+            if (val !== '') {
+                const num = parseFloat(val);
+                if (!isNaN(num)) currentData[key] = num;
+                else currentData[key] = null;
+            } else {
+                currentData[key] = null;   // skip
+            }
+
+            currentStepIndex++;
+            if (currentStepIndex < steps.length) {
+                updateQuestionStep();
+            } else {
+                computeAndShowResult();
+            }
+        }
+
+        // skip: just move forward without saving (leave null)
+        function handleSkip() {
+            if (currentStepIndex >= steps.length) return;
+            const key = steps[currentStepIndex].key;
+            currentData[key] = null;   // explicit skip
+            currentStepIndex++;
+            if (currentStepIndex < steps.length) {
+                updateQuestionStep();
+            } else {
+                computeAndShowResult();
+            }
+        }
+
+        stepNextBtn.addEventListener('click', (e) => { e.preventDefault(); handleNext(); });
+        stepSkipBtn.addEventListener('click', (e) => { e.preventDefault(); handleSkip(); });
+        stepFinishEarly.addEventListener('click', (e) => { e.preventDefault(); computeAndShowResult(); });
+
+        // compute metrics from currentData (null = 0)
+        function getComputedMetrics() {
+            const income = currentData.income || 0;
+            const earnings = currentData.earnings || 0;
+            const investment = currentData.investment || 0;
+            const bills = currentData.bills || 0;
+            const tax = currentData.tax || 0;
+            const other = currentData.other || 0;
+
+            const totalIncome = income + earnings;
+            const totalExpenses = bills + tax + other;
+            const netCash = totalIncome - totalExpenses;      // after expenses
+            const savings = netCash - investment;             // free after invest
+            const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : 0;
+            const liquidity = totalIncome > 0 ? (netCash / totalIncome) * 100 : 0;
+            const investRatio = totalIncome > 0 ? (investment / totalIncome) * 100 : 0;
+
+            return {
+                totalIncome,
+                netCash,
+                savings,
+                savingsRate: Math.round(savingsRate * 10) / 10,
+                liquidity: Math.round(liquidity * 10) / 10,
+                investRatio: Math.round(investRatio * 10) / 10,
+                investment,
+                bills, tax, other, income, earnings
+            };
+        }
+
+        function generateAI(metrics) {
+            if (metrics.totalIncome === 0) return "Enter at least income to get suggestions.";
+            const { savingsRate, investRatio, bills, totalIncome, other } = metrics;
+            const tips = [];
+            if (savingsRate < 0) tips.push("Expenses > income — review bills/discretionary.");
+            else if (savingsRate < 10) tips.push("Savings rate below 10% — consider trimming 'other' expenses.");
+            else if (savingsRate > 25) tips.push("Excellent savings! You could invest more.");
+            else tips.push("Savings rate healthy. Keep consistent.");
+
+            if (investRatio < 5 && totalIncome>0) tips.push("Investment below 5% of income.");
+            if (bills > 0.5 * totalIncome) tips.push("Bills are >50% of income.");
+            if (other > 0.3 * totalIncome) tips.push("Discretionary spending is high.");
+            if (tips.length === 0) tips.push("Your finances look balanced.");
+            return tips.slice(0,2).join(' · ');
+        }
+
+        function computeAndShowResult() {
+            hideAll();
+            resultView.classList.remove('hidden');
+            const metrics = getComputedMetrics();
+
+            // build metric grid
+            resultMetrics.innerHTML = `
+                <div class="metric-cell"><i class="fas fa-coins"></i><div class="value">$${metrics.netCash.toFixed(0)}</div><div>net</div></div>
+                <div class="metric-cell"><i class="fas fa-piggy-bank"></i><div class="value">${metrics.savingsRate}%</div><div>sRate</div></div>
+                <div class="metric-cell"><i class="fas fa-shield"></i><div class="value">${metrics.liquidity}%</div><div>liq</div></div>
+                <div class="metric-cell"><i class="fas fa-chart-pie"></i><div class="value">${metrics.investRatio}%</div><div>inv/tot</div></div>
+            `;
+            resultAI.innerText = '✨ ' + generateAI(metrics);
+        }
+
+        // save current result to history
+        function saveCurrentResult() {
+            const metrics = getComputedMetrics();
+            const date = new Date();
+            const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+            const entry = {
+                date: dateStr,
+                income: currentData.income,
+                investment: currentData.investment,
+                bills: currentData.bills,
+                tax: currentData.tax,
+                other: currentData.other,
+                earnings: currentData.earnings,
+                savingsRate: metrics.savingsRate,
+                netCash: metrics.netCash,
+                liquidity: metrics.liquidity,
+                investRatio: metrics.investRatio
+            };
+            history.unshift(entry);
+            if (history.length > 20) history.pop();
+            localStorage.setItem('budgetio_history', JSON.stringify(history));
+            // optional visual feedback
+            alert('Saved to history');
+        }
+
+        saveFromResult.addEventListener('click', () => { saveCurrentResult(); });
+        newFromResult.addEventListener('click', () => { startNewAnalysis(); });
+        backHomeFromResult.addEventListener('click', () => {
+            hideAll();
+            homeView.classList.remove('hidden');
+        });
+
+        // ----- PAST VIEW -----
+        function renderPastView() {
+            if (!pastListContainer) return;
+            if (history.length === 0) {
+                pastListContainer.innerHTML = '<div style="padding:30px; text-align:center; color:#4e76a1;">no past analyses</div>';
+                return;
+            }
+            let html = '';
+            history.forEach((item, idx) => {
+                html += `<div class="history-item" data-past-idx="${idx}">
+                    <span class="date"><i class="far fa-calendar-alt"></i> ${item.date || 'old'}</span>
+                    <span class="summary">sRate ${item.savingsRate ?? 0}%</span>
+                    <button class="delete-past" data-del="${idx}"><i class="fas fa-times-circle"></i></button>
+                </div>`;
+            });
+            pastListContainer.innerHTML = html;
+
+            // attach load
+            document.querySelectorAll('.history-item').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    if (e.target.closest('.delete-past')) return;
+                    const idx = el.getAttribute('data-past-idx');
+                    if (idx !== null && history[parseInt(idx)]) {
+                        const entry = history[parseInt(idx)];
+                        // load into currentData
+                        currentData = {
+                            income: entry.income ?? null,
+                            investment: entry.investment ?? null,
+                            bills: entry.bills ?? null,
+                            tax: entry.tax ?? null,
+                            other: entry.other ?? null,
+                            earnings: entry.earnings ?? null
+                        };
+                        computeAndShowResult(); // show result view with that data
+                    }
+                });
+            });
+
+            // delete buttons
+            document.querySelectorAll('.delete-past').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = btn.getAttribute('data-del');
+                    if (idx !== null) {
+                        history.splice(parseInt(idx), 1);
+                        localStorage.setItem('budgetio_history', JSON.stringify(history));
+                        renderPastView();
+                    }
+                });
+            });
+        }
+
+        function showPastView() {
+            hideAll();
+            pastView.classList.remove('hidden');
+            renderPastView();
+        }
+
+        clearAllPastBtn.addEventListener('click', () => {
+            if (confirm('Delete all history?')) {
+                history = [];
+                localStorage.removeItem('budgetio_history');
+                renderPastView();
+            }
+        });
+
+        backFromPast.addEventListener('click', () => {
+            hideAll();
+            homeView.classList.remove('hidden');
+        });
+
+        // optional: allow enter key in step input
+        stepInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleNext();
+            }
+        });
+
+        // init view
+        hideAll();
+        homeView.classList.remove('hidden');
+    })();
+</script>
 </body>
 </html>
